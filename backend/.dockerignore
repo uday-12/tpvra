@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+
+# Development
+.env
+.env.local
+.env.development
+.env.test
+*.md
+README.md
+todo.md
+
+# Git
+.git
+.gitignore
+.claude
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files (will be regenerated in container)
+generated
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Tests
+*.test.ts
+*.test.js
+__tests__
+coverage

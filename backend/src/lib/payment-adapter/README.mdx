@@ -1,0 +1,113 @@
+
+# Payment Adapter Library
+
+This library provides a unified interface for multiple payment gateways (Stripe, Razorpay), allowing you to switch providers easily without changing your core business logic.
+
+## Installation
+
+Ensure you have the necessary SDKs installed:
+
+```bash
+bun add stripe razorpay @sinclair/typebox elysia
+```
+
+## Features
+
+- **Unified Interface**: `IPaymentProcessor` handles standard actions like `createPaymentIntent` and `createCustomer`.
+- **Factory Pattern**: Automatically instantiates the correct provider based on configuration.
+- **Type Safety**: Full TypeScript support with shared request/response types.
+- **Webhook Helpers**: Standardized signature verification and event typing.
+
+## Usage
+
+### 1. Configuration
+
+Ensure your environment variables are set. The `getPaymentConfig` helper loads these automatically.
+
+```env
+# Stripe
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Razorpay
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+RAZORPAY_WEBHOOK_SECRET=...
+
+# General
+DEFAULT_CURRENCY=USD
+```
+
+### 2. Basic Implementation
+
+Here is how to initialize the processor and create a payment intent.
+
+```typescript
+import { PaymentProcessorFactory, getPaymentConfig } from './src/lib/payment-adapter';
+import { PaymentGateway } from './src/lib/payment-adapter/types';
+
+async function processPayment() {
+  // 1. Select Gateway
+  const gateway = PaymentGateway.STRIPE; // or 'razorpay'
+
+  // 2. Get Config & Processor
+  const config = getPaymentConfig(gateway);
+  const processor = PaymentProcessorFactory.getProcessor(gateway, config);
+
+  // 3. Create a Customer (Optional)
+  const customer = await processor.createCustomer({
+      email: 'user@example.com',
+      name: 'John Doe',
+      metadata: { userId: '123' }
+  });
+
+  if (!customer.success) throw new Error("Customer creation failed");
+
+  // 4. Create Charge/Intent
+  const transaction = await processor.createPaymentIntent({
+      amount: 19.99, // Amount in major units (e.g. Dollars)
+      currency: 'USD',
+      customerId: customer.transactionId,
+      description: 'Monthly Subscription'
+  });
+
+  return transaction.data;
+}
+```
+
+### 3. Handling Webhooks
+
+The adapter standardizes webhook verification.
+
+```typescript
+async function handleWebhook(req: Request) {
+    const signature = req.headers.get('stripe-signature') || req.headers.get('x-razorpay-signature');
+    const body = await req.text();
+    const gateway = 'stripe'; // Determine this from URL or headers
+
+    const processor = PaymentProcessorFactory.getProcessor(gateway, getPaymentConfig(gateway));
+
+    const result = await processor.verifyWebhookEvent(body, signature);
+
+    if (result.success) {
+        console.log("Valid Event:", result.data);
+    } else {
+        console.error("Invalid Signature");
+    }
+}
+```
+
+## Supported Providers
+
+| Provider | Key Features |
+| :--- | :--- |
+| **Stripe** | Payment Intents, Customer Management, Webhooks (Signatures) |
+| **Razorpay** | Orders, Customer Management, Webhooks (HMAC SHA256) |
+
+## Extending
+
+To add a new provider (e.g., PayPal):
+1. Create `providers/PayPalProvider.ts` extending `BasePaymentProcessor`.
+2. Implement `IPaymentProcessor` methods.
+3. Register it in `PaymentFactory.ts`.

@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+generator prismabox {
+  provider                    = "prismabox"
+  output                      = "../generated/prismabox"
+  additionalProperties        = "true"
+  inputModel                  = "true"
+  typeboxImportDependencyName = "elysia"
+  typeboxImportVariableName   = "t"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String                     @id
+  name                   String
+  email                  String                     @unique
+  emailVerified          Boolean                    @default(false)
+  image                  String?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  role                   String?
+  banned                 Boolean?                   @default(false)
+  banReason              String?
+  isApproved             UserStatus                 @default(AWAITING_FOR_APPROVAL) @map("is_approved")
+  banExpires             DateTime?
+  assessorName           String?
+  companyName            String?
+  licenseNumber          String                     @default("")
+  termsAccepted          Boolean                    @default(false)
+  phoneNumber            String?                    @unique
+  phoneNumberVerified    Boolean?
+  accounts               Account[]
+  assessorAssessments    AssessorVendorAssessment[] @relation("AssessorRelation")
+  vendorAssessments      AssessorVendorAssessment[] @relation("VendorRelation")
+  assessorPayments       Payment[]                  @relation("AssessorPayment")
+  vendorPayments         Payment[]                  @relation("VendorPayment")
+  sessions               Session[]
+  vendorAnswers          VendorAnswer[]
+  vendorClarifications   Clarification[]            @relation("VendorClarification")
+  assessorClarifications Clarification[]            @relation("AssessorClarification")
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Category {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String     @unique
+  deletedAt DateTime?  @map("deleted_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  questions Question[]
+
+  @@map("categories")
+}
+
+model Question {
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionText        String               @map("question_text")
+  questionType        QuestionType         @map("question_type")
+  riskRating          RiskRating           @map("risk_rating")
+  assignedRiskRating  RiskRating?          @map("assigned_risk_rating")
+  options             Json?
+  rtv                 String?              @map("rtv")
+  recommendation      String?              @map("recommendation")
+  categoryId          String               @map("category_id") @db.Uuid
+  deletedAt           DateTime?            @map("deleted_at")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
+  assessmentQuestions AssessmentQuestion[]
+  clarifications      Clarification[]
+  category            Category             @relation(fields: [categoryId], references: [id])
+  vendorAnswers       VendorAnswer[]
+
+  @@index([categoryId])
+  @@map("questions")
+}
+
+model Assessment {
+  id                                 String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                              String
+  assessmentType                     String                     @default("DEFAULT") @map("assessment_type")
+  deletedAt                          DateTime?                  @map("deleted_at")
+  createdAt                          DateTime                   @default(now()) @map("created_at")
+  updatedAt                          DateTime                   @default(now()) @updatedAt @map("updated_at")
+  assessmentQuestions                AssessmentQuestion[]
+  parentAssessorVendorAssessments    AssessorVendorAssessment[] @relation("ParentAssessment")
+  submittedAssessorVendorAssessments AssessorVendorAssessment[] @relation("SubmittedAssessment")
+  payments                           Payment[]
+
+  @@map("assessments")
+}
+
+model AssessmentQuestion {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assessmentId String     @map("assessment_id") @db.Uuid
+  questionId   String     @map("question_id") @db.Uuid
+  deletedAt    DateTime?  @map("deleted_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @updatedAt @map("updated_at")
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  question     Question   @relation(fields: [questionId], references: [id])
+
+  @@unique([assessmentId, questionId], map: "uq_assessment_question")
+  @@map("assessment_questions")
+}
+
+model AssessorVendorAssessment {
+  id                    String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assessorId            String           @map("assessor_id")
+  vendorId              String           @map("vendor_id")
+  parentAssessmentId    String?          @map("parent_assessment_id") @db.Uuid
+  submittedAssessmentId String?          @map("submitted_assessment_id") @db.Uuid
+  status                AssessmentStatus
+  deletedAt             DateTime?        @map("deleted_at")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @default(now()) @updatedAt @map("updated_at")
+  submittedAt           DateTime?        @map("submitted_at")
+  dueDate               DateTime?        @map("due_date")
+  amount                Decimal          @default(0) @db.Decimal(10, 2)
+  overallRisk           Int?             @map("overall_risk")
+  assessor              User             @relation("AssessorRelation", fields: [assessorId], references: [id])
+  parentAssessment      Assessment?      @relation("ParentAssessment", fields: [parentAssessmentId], references: [id])
+  submittedAssessment   Assessment?      @relation("SubmittedAssessment", fields: [submittedAssessmentId], references: [id])
+  vendor                User             @relation("VendorRelation", fields: [vendorId], references: [id])
+  clarifications        Clarification[]
+
+  @@map("assessor_vendor_assessments")
+}
+
+model VendorAnswer {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId          String             @map("vendor_id")
+  questionId        String             @map("question_id") @db.Uuid
+  answer            String
+  /// explanation anser
+  answerExplanation String?            @map("answer_explanation")
+  riskRating        RiskRating         @map("risk_rating")
+  dueDate           DateTime?          @map("due_date")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at")
+  // file id of the answer not supporting file
+  answerFileId      String?            @map("file_id") @db.Uuid
+  vendorAnswerFiles VendorAnswerFile[]
+  question          Question           @relation(fields: [questionId], references: [id])
+  vendor            User               @relation(fields: [vendorId], references: [id])
+
+  @@unique([vendorId, questionId], map: "uq_vendor_question")
+  @@index([vendorId])
+  @@index([questionId])
+  @@map("vendor_answers")
+}
+
+/// supporting answer files upload table for a question answer
+model VendorAnswerFile {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorAnswerId String       @map("vendor_answer_id") @db.Uuid
+  fileId         String       @map("file_id") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at")
+  file           File         @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  vendorAnswer   VendorAnswer @relation(fields: [vendorAnswerId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorAnswerId, fileId], map: "uq_answer_file")
+  @@map("vendor_answer_files")
+}
+
+model Clarification {
+  id                         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assessorVendorAssessmentId String                   @map("assessor_vendor_assessment_id") @db.Uuid
+  questionId                 String                   @map("question_id") @db.Uuid
+  vendorId                   String                   @map("vendor_id")
+  clarificationRequested     String                   @map("clarification_requested")
+  clarificationAnswer        String?                  @map("clarification_answer")
+  clarificationFileId        String?                  @map("clarification_file_id") @db.Uuid
+  dueDate                    DateTime?                @map("due_date")
+  status                     ClarificationStatus
+  createdAt                  DateTime                 @default(now()) @map("created_at")
+  updatedAt                  DateTime                 @default(now()) @updatedAt @map("updated_at")
+  assessor                   User?                    @relation("AssessorClarification", fields: [assessorId], references: [id])
+  assessorId                 String?                  @map("assessor_id")
+  assessorVendorAssessment   AssessorVendorAssessment @relation(fields: [assessorVendorAssessmentId], references: [id])
+  clarificationFile          File?                    @relation("ClarificationFile", fields: [clarificationFileId], references: [id])
+  question                   Question                 @relation(fields: [questionId], references: [id])
+  vendor                     User                     @relation("VendorClarification", fields: [vendorId], references: [id])
+
+  @@map("clarifications")
+}
+
+model File {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fileName          String             @map("file_name")
+  s3Key             String             @map("s3_key")
+  filePath          String?            @map("file_path")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  deletedAt         DateTime?          @map("deleted_at")
+  deletedBy         String?            @map("deleted_by")
+  fileSize          Int?               @map("file_size")
+  mimeType          String?            @map("mime_type")
+  s3Bucket          String?            @map("s3_bucket")
+  uploadedBy        String?            @map("uploaded_by")
+  url               String?            @map("url")
+  clarifications    Clarification[]    @relation("ClarificationFile")
+  vendorAnswerFiles VendorAnswerFile[]
+
+  @@map("files")
+}
+
+model Payment {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentMethod String?       @map("payment_method")
+  amount        Decimal       @db.Decimal(12, 2)
+  status        PaymentStatus
+  vendorId      String        @map("vendor_id")
+  assessmentId  String        @map("assessment_id") @db.Uuid
+  assessorId    String?       @map("assessor_id")
+  transactionId String?       @map("transaction_id")
+  invoiceId     String?       @map("invoice_id")
+  invoiceUrl    String?       @map("invoice_url")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
+  logs          PaymentLog[]
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+  assessor      User?         @relation("AssessorPayment", fields: [assessorId], references: [id])
+  vendor        User          @relation("VendorPayment", fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@index([assessmentId])
+  @@map("payments")
+}
+
+model PaymentLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentId String?  @map("payment_id") @db.Uuid
+  gateway   String
+  event     String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@map("payment_logs")
+}
+
+model Notification {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String
+  description      String
+  notificationDate DateTime @map("notification_date")
+  senderName       String   @map("sender_name")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("notifications")
+}
+
+enum AssessmentStatus {
+  SUBMITTED
+  PENDING
+  IN_PROGRESS
+
+  @@map("assessment_status_enum")
+}
+
+enum RiskRating {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  VERY_LOW
+
+  @@map("risk_rating_enum")
+}
+
+enum QuestionType {
+  TEXT
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  BOOLEAN
+  NUMBER
+  FILE_UPLOAD
+
+  @@map("question_type_enum")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+
+  @@map("payment_status_enum")
+}
+
+enum ClarificationStatus {
+  PENDING
+  SUBMITTED
+
+  @@map("clarification_status_enum")
+}
+
+enum UserStatus {
+  APPROVED
+  REJECTED
+  AWAITING_FOR_APPROVAL
+
+  @@map("user_status_enum")
+}

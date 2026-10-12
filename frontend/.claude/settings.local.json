@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /home/uday/Desktop/Uday Projects/TPVRA_MAIN/Third-party-risk-management/frontend:*)",
+      "Bash(cd /home/uday/Desktop/Uday Projects/TPVRA_MAIN/Third-party-risk-management/frontend && npx tsc --noEmit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(tail -20 app/\\\\\\(dashboard\\\\\\)/admin/assessments/page.tsx)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(grep -n \"console.log\" app/\\\\\\(dashboard\\\\\\)/vendor/assessments/[id]/page.tsx)",
+      "Bash(lsof -ti:3000)",
+      "Bash(kill:*)",
+      "Bash(cd:*)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(npm run build)",
+      "Bash(npm run lint)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(cd /home/uday/Desktop/Uday\\\\ Projects/TPVRA_MAIN/Third-party-risk-management/frontend && npx next build:*)",
+      "Bash(source:*)",
+      "Bash(nvm ls:*)",
+      "Bash(nvm use:*)"
+    ]
+  }
+}

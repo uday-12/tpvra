@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(cd:*)",
+      "Bash(bunx tsc --noEmit)",
+      "Bash(bun run build)"
+    ]
+  }
+}

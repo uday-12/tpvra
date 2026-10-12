@@ -1,0 +1,17 @@
+export const BREADCRUMB_CONFIG: Record<string, string> = {
+    admin: "Admin",
+    dashboard: "Dashboard",
+    assessors: "Assessors",
+    vendors: "Vendors",
+    admins: "Admins",
+    assessments: "Assessments",
+    payments: "Payments",
+    // logs: "Audit Logs",
+    settings: "Settings",
+    vendor: "Vendor",
+    profile: "Profile",
+    submissions: "Submissions",
+    clarifications: "Clarifications",
+    assessor: "Assessor",
+    "risk-profile": "Dashboard",
+};

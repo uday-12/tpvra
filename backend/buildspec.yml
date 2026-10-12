@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Verifying Docker...
+      - docker --version
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 545209304390.dkr.ecr.ap-southeast-1.amazonaws.com
+      - export REPOSITORY_URI="545209304390.dkr.ecr.ap-southeast-1.amazonaws.com/$ENVIRONMENT-vendor"
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo $REPOSITORY_URI
+      - echo Environment $ENVIRONMENT
+      - export CONTAINER_NAME="$ENVIRONMENT-backend-service"
+      - echo Container Name ${CONTAINER_NAME}
+      
+  build:
+    commands:
+      - echo Build started on `date`
+      - pwd
+      - ls -R
+      - echo Building  backend service with docker...
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG backend
+           
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing Docker image to ECR...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing imagedefinitions.json for ECS deployment...
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json

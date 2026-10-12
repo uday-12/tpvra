@@ -1,0 +1,370 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Global smooth scrolling for in-page anchors */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Remove browser autofill background/outline */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  box-shadow: 0 0 0px 1000px transparent inset;
+  -webkit-text-fill-color: inherit;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  /* Sidebar hover background will be controlling the background color on hover*/
+  --color-sidebar-hover-background: white;
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-light-100: #f3f4f6;
+  --color-light-200: #e5e7eb;
+  --color-light-300: #d1d5dc;
+  --color-light-400: #99a1af;
+  --color-light-500: #6a7282;
+  --color-light-600: #4a5565;
+  --color-light-700: #364153;
+  --color-light-800: #1e2939;
+  --color-light-900: #101828;
+  --color-light-1000: #030712;
+
+  --color-black: #000000;
+  --color-dark-primary: #17181a;
+  --color-dark-secondary: #1c1d20;
+  --color-dark-content: #25272a;
+  --color-dark-borders: #323438;
+  --color-dark-background: #25272a;
+  --color-dark-grey: #384455;
+  --color-light-primary: var(--color-light-600);
+  --color-light-secondary: var(--color-light-500);
+  --color-light-content: var(--color-light-400);
+  --color-light-borders: var(--color-light-200);
+  --color-light-background: var(--color-light-100);
+  --color-white: #ffffff;
+  --color-blue-primary: var(--color-blue-600);
+  --color-yellow-primary: var(--color-yellow-600);
+  --color-red-primary: var(--color-red-600);
+  --color-purple-primary: var(--color-purple-700);
+  --color-indigo-primary: var(--color-indigo-600);
+  --color-pink-primary: var(--color-pink-600);
+  --color-positive-state: #17c964;
+  --color-waring-state: #ea3a3d;
+  --color-orange-primary: #f3654a;
+  --color-alternative: #6e6d86;
+  --color-alternative-secondary: #acb3c7;
+  --color-dark-100: #e8e8e8;
+  --color-dark-200: #d1d1d1;
+  --color-dark-300: #a2a3a3;
+  --color-dark-400: #747476;
+  --color-dark-500: #454648;
+  --color-dark-600: #17181a;
+  --color-dark-700: #121315;
+  --color-dark-800: #0e0e10;
+  --color-dark-900: #090a0a;
+  --color-dark-1000: #050505;
+
+  --color-blue-100: #e7f7fe;
+  --color-blue-200: #d0effc;
+  --color-blue-300: #a0dff9;
+  --color-blue-400: #71cff6;
+  --color-blue-500: #41bff3;
+  --color-blue-600: #12aff0;
+  --color-blue-700: #0e8cc0;
+  --color-blue-800: #0b6990;
+  --color-blue-900: #074660;
+  --color-blue-1000: #042330;
+
+  --color-indigo-100: #eeeffe;
+  --color-indigo-200: #dddefd;
+  --color-indigo-300: #bbbefa;
+  --color-indigo-400: #999df8;
+  --color-indigo-500: #777df5;
+  --color-indigo-600: #555cf3;
+  --color-indigo-700: #444ac2;
+  --color-indigo-800: #333792;
+  --color-indigo-900: #222561;
+  --color-indigo-1000: #111231;
+
+  --color-purple-100: #f3e8ff;
+  --color-purple-200: #ddd6ff;
+  --color-purple-300: #c4b4ff;
+  --color-purple-400: #a684ff;
+  --color-purple-500: #8e51ff;
+  --color-purple-600: #7f22fe;
+  --color-purple-700: #7008e7;
+  --color-purple-800: #5d0ec0;
+  --color-purple-900: #4d179a;
+  --color-purple-950: #2f0d68;
+
+  --color-pink-100: #fff0f8;
+  --color-pink-200: #ffe1f1;
+  --color-pink-300: #ffc4e3;
+  --color-pink-400: #fea6d6;
+  --color-pink-500: #fe89c8;
+  --color-pink-600: #fe6bba;
+  --color-pink-700: #cb5695;
+  --color-pink-800: #984070;
+  --color-pink-900: #662b4a;
+  --color-pink-1000: #331525;
+
+  --color-red-100: #fef1f4;
+  --color-red-200: #fde4e9;
+  --color-red-300: #fbc8d3;
+  --color-red-400: #f8adbc;
+  --color-red-500: #f691a6;
+  --color-red-600: #f47690;
+  --color-red-700: #c35e73;
+  --color-red-800: #924756;
+  --color-red-900: #622f3a;
+  --color-red-1000: #31181d;
+
+  --color-orange-100: #fef0ed;
+  --color-orange-200: #fde0db;
+  --color-orange-300: #fac1b7;
+  --color-orange-400: #f8a392;
+  --color-orange-500: #f5846e;
+  --color-orange-600: #f3654a;
+  --color-orange-700: #c2513b;
+  --color-orange-800: #923d2c;
+  --color-orange-900: #61281e;
+  --color-orange-1000: #31140f;
+
+  --color-yellow-100: #fffaed;
+  --color-yellow-200: #fef4db;
+  --color-yellow-300: #fdeab7;
+  --color-yellow-400: #fcdf92;
+  --color-yellow-500: #fbd56e;
+  --color-yellow-600: #faca4a;
+  --color-yellow-700: #c8a23b;
+  --color-yellow-800: #96792c;
+  --color-yellow-900: #64511e;
+  --color-yellow-1000: #32280f;
+
+  --color-alternative-100: #f1f0f3;
+  --color-alternative-200: #e2e2e7;
+  --color-alternative-300: #c5c5cf;
+  --color-alternative-400: #a8a7b6;
+  --color-alternative-500: #8b8a9e;
+  --color-alternative-600: #6e6d86;
+  --color-alternative-700: #58576b;
+  --color-alternative-800: #424150;
+  --color-alternative-900: #2c2c36;
+  --color-alternative-1000: #16161b;
+
+  --color-green-100: #e8fbf5;
+  --color-green-200: #d1f7ea;
+  --color-green-300: #a3eed6;
+  --color-green-400: #76e6c1;
+  --color-green-500: #48ddad;
+  --color-green-600: #1ad598;
+  --color-green-700: #15aa7a;
+  --color-green-800: #10805b;
+  --color-green-900: #0a553d;
+  --color-green-1000: #052b1e;
+
+  --color-gradient-primary: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.14),
+      rgba(16, 24, 40, 0.05));
+  --font-figtree: "Figtree", sans-serif;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: hsl(0, 0%, 98%);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
+  --primary: oklch(0.7037 0.1989 44.92);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.955 0.015 250);
+  --secondary-foreground: oklch(0.20 0.02 250);
+  --muted: oklch(0.9700 0 0);
+  --muted-foreground: oklch(0.5560 0 0);
+  --accent: oklch(0.7037 0.1989 44.92);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: hsl(220, 13%, 91%);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.7037 0.1989 44.92);
+  --chart-1: oklch(0.70 0.144 242.8);
+  --chart-2: oklch(0.75 0.18 145);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.7037 0.1989 44.92);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.9850 0 0);
+  --sidebar-foreground: oklch(0.1450 0 0);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.985 0.03 44.92);
+  --sidebar-accent-foreground: oklch(0.7037 0.1989 44.92);
+  --sidebar-border: oklch(0.90 0.015 250);
+  --sidebar-ring: oklch(0.7037 0.1989 44.92);
+}
+
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: hsl(268, 70%, 65%);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Print styles for Risk Profile Report */
+@media print {
+  /* Hide navigation, sidebar, header, and other UI elements */
+  nav,
+  aside,
+  .sidebar,
+  [data-sidebar],
+  [data-slot="sidebar"],
+  .breadcrumb {
+    display: none !important;
+  }
+
+  /* Reset body and main content for print */
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Make main content full width */
+  main,
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Risk profile print container */
+  .risk-profile-print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* Ensure tables print nicely */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  /* Ensure badges print with colors */
+  .bg-purple-100,
+  .bg-red-100,
+  .bg-yellow-100,
+  .bg-green-100,
+  .bg-emerald-100,
+  .bg-slate-100 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Risk by category card for print */
+  .risk-category-card {
+    border: 1px solid #e5e7eb !important;
+    background: white !important;
+  }
+}
